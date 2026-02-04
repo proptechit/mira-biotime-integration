@@ -1,4 +1,17 @@
 <?php
+
+$jsonFile = __DIR__ . '/../storage/user_map.json';
+
+if (!file_exists($jsonFile)) {
+    throw new Exception('user_map.json not found');
+}
+
+$userMap = json_decode(file_get_contents($jsonFile), true);
+
+if (json_last_error() !== JSON_ERROR_NONE) {
+    throw new Exception('Invalid JSON in user_map.json');
+}
+
 return [
     'biotime' => [
         'api_token' => 'd7fd11e694764fb29af32c3a4032dcfb',
@@ -11,152 +24,7 @@ return [
         // 'end_time' => '2026-01-27 23:59:59',
     ],
     'bitrix' => [
-        'user_map' => [
-            1 => 146,     // Gayeyelman
-            2 => 145,     // Salamabou Ajram
-            3 => 144,     // Jameshbouss
-            5 => 59,      // Islam Shokuev
-            8 => 25,      // Stanislav Maltsev
-            15 => 9,      // Zaira Nasirtinova
-            16 => 38,     // Vladislav Tikolaz
-            18 => 37,     // Asiyat Bberbekova
-            20 => 35,     // Natalia Magomedova
-            25 => 142,    // Abdur Rahim
-            29 => 28,     // Daphne Verghese
-            30 => 13,     // Siyovush Mirzoev
-            32 => 18,     // Ayya Prokopyeva
-            35 => 52,     // Pavel Piantcev
-            36 => 100,    // Liudmyla Nykolaichuk
-            38 => 26,     // Evgeniia Odintsova
-            40 => 129,    // Anastasia Skulanova
-            43 => 42,     // Emil Gabibov
-            45 => 16,     // Ziyarzayev
-            46 => 57,     // Bulat Akhmedov
-            53 => 24,     // Diana Goginava
-            54 => 53,     // Philipp Morgunov
-            57 => 83,     // Mohammad Alshibi
-            64 => 44,     // Mohamad Takriti
-            66 => 5,      // Kristina Boeva
-            71 => 116,    // Mariia Khmyz
-            72 => 20,     // Rezuan Shokuev
-            76 => 68,     // Pavel Dragovalovskii
-            79 => 11,     // Farah Warda
-            81 => 43,     // Guzel Musabirova
-            83 => 21,     // Timur Chimaev
-            84 => 84,     // Marina Dolgova
-            87 => 58,     // Magomed Mamaev
-            88 => 22,     // Aslan Safarov
-            92 => 14,     // Dafne Cavalieri
-            106 => 54,    // Ahmed Riad Bukkerou
-            119 => 93,    // Alexey Chernikov
-            132 => 80,    // Nika Bilikhodze
-            136 => 90,    // David Ijod
-            157 => 87,    // Oleg Andronyuk
-            191 => 6,     // Mhonabel De Leon
-            198 => 84,    // Marina Dolgova
-            199 => 12,    // Julia Kravchenko
-            201 => 55,    // Zhanara Kali
-            223 => 51,    // Anarakul Mambetova
-            227 => 81,    // Alikhan Bitokov
-            236 => 77,    // Murad Ramazanov
-            247 => 17,    // Muhammad Alsarah
-            249 => 41,    // Baraa Fouzi Salem
-            281 => 19,    // Imran Memon
-            286 => 66,    // Sajjad Memon
-            301 => 88,    // Denis Kazaryan
-            307 => 62,    // Pedram Gholami
-            328 => 63,    // Khurram Riaz
-            329 => 99,    // Dinoza Rakhimova
-            330 => 89,    // Waqas Asghar
-            331 => 95,    // Qasim Zainli
-            332 => 96,    // Muhammad Abdullah
-            341 => 98,    // Chaminda Liyana Ralalage
-            342 => 79,    // Moath Shita
-            357 => 101,   // Vasiliy Tovarnytskyy
-            366 => 10,    // Rza Hajiyev
-            375 => 91,    // Salam Qasem
-            377 => 48,    // Elena Soina
-            383 => 57,    // Bulat Akhmedov
-            384 => 68,    // Sunny Gambhir
-            402 => 82,    // Numan Ahamed
-            405 => 36,    // Karl Lontoc
-            410 => 75,    // Fatimat Batyrova
-            416 => 61,    // Irina Lobanova
-            422 => 49,    // Navneet Kaur
-            424 => 50,    // Aelita Akhmedova
-            426 => 30,    // Cindy Nacario
-
-            13 => 0,    // Mohammad Fahad
-            14 => 0,    // Megna Pankaj
-            26 => 0,    // Abidullah Subhan
-            39 => 0,    // Alena Kazeka
-            47 => 0,    // Mariadeleon
-            56 => 0,    // Kalima Iskanova
-            62 => 0,    // Artem Obukhov
-            63 => 0,    // Magomed Musaev
-            68 => 0,    // Dmitrii Shishov
-            69 => 0,    // Roman Skvortsov
-            85 => 0,    // Jana Kali
-            90 => 0,    // Sevilya Velieva
-            107 => 0,   // Victoria Banar
-            111 => 0,   // Christopher Bayuda
-            127 => 0,   // Oleg Mudrak
-            141 => 0,   // Mohamed Wais
-            144 => 0,   // Alina Volcharenko
-            146 => 0,   // Svitlana Svitlichnaya
-            159 => 0,   // Daria Lukianova
-            172 => 0,   // Abdul Manaf Alathurayil Kunhimon Aboobacker
-            173 => 0,   // Mohammed Fawas Maram Parambil
-            175 => 0,   // Violetta Dokshukina
-            187 => 0,   // Irina Lungu
-            190 => 0,   // Shamkyz Dinaeva
-            193 => 0,   // Mehri Sadikova
-            196 => 0,   // Amina Elsaid
-            204 => 0,   // Sanjay Sachdeva
-            205 => 0,   // Daniel Burkin
-            206 => 0,   // Rahmathulla Khan
-            208 => 0,   // Aswathi Avayil
-            222 => 0,   // Sameh Maher
-            244 => 0,   // Muhammad Bilal Raja
-            246 => 0,   // Maria Salloum
-            248 => 0,   // Mukhammad Jon Olimov
-            259 => 0,   // Abdelhady Khodir
-            260 => 0,   // Beshier Elawella
-            261 => 0,   // Ainurbek Bauova
-            262 => 0,   // Arsalan Jani
-            263 => 0,   // Usman Bin Aamir
-            264 => 0,   // Gayda Magomedova
-            265 => 0,   // Surendra Singh
-            266 => 0,   // Ubeida Al Haj
-            267 => 0,   // Ibrakhim Ilyassov
-            268 => 0,   // Valerii Khachatrian
-            269 => 0,   // Yulia Burdiak
-            270 => 0,   // Tina Al Muhtashem
-            271 => 0,   // Mayya Atayeva
-            272 => 0,   // Ahmad Alqudsi
-            273 => 0,   // Ibrahim Rajab
-            274 => 0,   // Adil Amanzholov
-            275 => 0,   // Rafiulah Khan
-            276 => 0,   // Bhawishay Balani
-            277 => 0,   // Habibah Assabelnaby
-            278 => 0,   // Michel Saab
-            288 => 0,   // Aleksei Bobko
-            305 => 0,   // Tatyana Lupatnikova
-            325 => 0,   // Safwan Zaheer
-            326 => 0,   // Hasan Malakha
-            327 => 0,   // Simple Adatiya
-            333 => 0,   // Leena Vatnani
-            335 => 0,   // Imane Elfadil
-            336 => 0,   // Abu Sufyan
-            350 => 0,   // Olga Kim
-            353 => 0,   // Belshri Brahma
-            372 => 0,   // Obiefuna Isaiah
-            406 => 0,   // Jeffrey Garcia
-            415 => 0,   // Ksenia Zhikhareva
-            417 => 0,   // Priyanka Singh
-            423 => 0,   // Rehmat Ullah
-            427 => 0,   // Anton Kurokhtin
-        ],
+        'user_map' => $userMap,
         'biotime_transactions_entity_type_id' => 1060,
     ],
     'timezone' => 'Asia/Dubai',

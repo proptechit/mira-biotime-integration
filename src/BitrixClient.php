@@ -21,12 +21,12 @@ class BitrixClient
             return false;
         }
 
-        if (empty($this->map[(int)$badgeNumber])) {
+        if (empty($this->map[(int)$badgeNumber]['bitrix_id'])) {
             Logger::log("BioTime badge number $badgeNumber is valid but not mapped to a Bitrix user.");
             return false;
         }
 
-        $bitrixUserId = (int)$this->map[(int)$badgeNumber];
+        $bitrixUserId = (int)$this->map[(int)$badgeNumber]['bitrix_id'];
 
         if ($bitrixUserId <= 0) {
             Logger::log("BioTime badge number $badgeNumber is mapped to a non-Bitrix user.");
