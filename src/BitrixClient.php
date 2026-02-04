@@ -26,7 +26,7 @@ class BitrixClient
             return false;
         }
 
-        $bitrixUserId = $this->map[$badgeNumber]['bitrix_id'];
+        $bitrixUserId = (int)$this->map[(int)$badgeNumber];
 
         if ($bitrixUserId <= 0) {
             Logger::log("BioTime badge number $badgeNumber is mapped to a non-Bitrix user.");
