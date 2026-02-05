@@ -10,6 +10,87 @@ if (!file_exists($jsonFile)) {
 
 $userMap = json_decode(file_get_contents($jsonFile), true) ?? [];
 
+$ENV = 'development'; // change to 'development' if needed
+
+// ----------------------------
+// Bitrix / Auth
+// ----------------------------
+if ($ENV === 'production') {
+    ini_set('display_errors', 0);
+    error_reporting(0);
+
+    require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+
+    global $USER;
+    $USER_ID = (int)$USER->GetID();
+} else {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+
+    // dev fallback
+    $USER_ID = 1;
+}
+
+// ----------------------------
+// Auth check
+// ----------------------------
+if (!$USER_ID) {
+    http_response_code(403);
+    echo 'Unauthorized';
+    exit;
+}
+
+// ----------------------------
+// Admin Access Control (Bitrix Native)
+// ----------------------------
+$isAdmin = false;
+
+if ($ENV === 'production') {
+    $isAdmin = $USER->IsAdmin();
+} else {
+    $isAdmin = true; // allow in dev
+}
+
+if (!$isAdmin) {
+    http_response_code(403);
+?>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Access Denied</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+
+    <body class="min-h-screen bg-gray-100 flex items-center justify-center">
+
+        <div class="bg-white shadow-lg rounded-xl p-10 max-w-md w-full text-center">
+            <div class="text-red-600 text-5xl mb-4">⛔</div>
+
+            <h1 class="text-2xl font-semibold mb-2">Access Denied</h1>
+
+            <p class="text-gray-600 mb-6">
+                You don’t have permission to view this page.
+            </p>
+        </div>
+
+    </body>
+
+    </html>
+<?php
+    exit;
+}
+
+// ----------------------------
+// Frontend flags
+// ----------------------------
+echo "<script>
+    localStorage.setItem('user_id', btoa('{$USER_ID}'));
+    localStorage.setItem('is_admin', btoa('" . ($isAdmin ? '1' : '0') . "'));
+    localStorage.setItem('env', btoa('" . $ENV . "'));
+</script>";
+
 // ----------------------------
 // Handle Save (Add / Update)
 // ----------------------------
@@ -21,10 +102,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
     if ($badge !== '') {
         $userMap[$badge] = [
             'bitrix_id' => $bitrixId,
-            'name' => $name
+            'name'      => $name
         ];
         ksort($userMap);
-        file_put_contents($jsonFile, json_encode($userMap, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        file_put_contents(
+            $jsonFile,
+            json_encode($userMap, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
     }
 
     header('Location: user_map.php');
@@ -39,7 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 
     if (isset($userMap[$badge])) {
         unset($userMap[$badge]);
-        file_put_contents($jsonFile, json_encode($userMap, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        file_put_contents(
+            $jsonFile,
+            json_encode($userMap, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
     }
 
     header('Location: user_map.php');
@@ -49,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 // ----------------------------
 // Group users
 // ----------------------------
-$mapped = [];
+$mapped   = [];
 $unmapped = [];
 
 foreach ($userMap as $badge => $data) {
@@ -60,7 +147,6 @@ foreach ($userMap as $badge => $data) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -93,7 +179,7 @@ foreach ($userMap as $badge => $data) {
             </form>
         </div>
 
-        <!-- MAPPED USERS -->
+        <!-- Mapped -->
         <div class="bg-white rounded-lg shadow mb-10 overflow-x-auto">
             <div class="px-6 py-4 border-b">
                 <h2 class="text-lg font-medium text-green-700">
@@ -133,7 +219,7 @@ foreach ($userMap as $badge => $data) {
             </table>
         </div>
 
-        <!-- UNMAPPED USERS -->
+        <!-- Unmapped -->
         <div class="bg-white rounded-lg shadow overflow-x-auto">
             <div class="px-6 py-4 border-b">
                 <h2 class="text-lg font-medium text-red-700">
