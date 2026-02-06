@@ -13,12 +13,9 @@ $dayName = date('l');   // Full day name
 
 $valid = false;
 
-if ($dayOfWeek == 6) {
-    // Saturday: 10:30 to 16:30
-    $valid = ($currentTime >= '10:30' && $currentTime <= '16:30');
-} elseif ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
-    // Monday to Friday: 09:30 to 19:30
-    $valid = ($currentTime >= '09:30' && $currentTime <= '19:30');
+if ($dayOfWeek >= 1 && $dayOfWeek <= 6) {
+    // Monday to Saturday: 05:00 to 12:00
+    $valid = ($currentTime >= '05:00' && $currentTime <= '22:00');
 } else {
     // Sunday (0) — no processing
     require_once __DIR__ . '/helpers/Logger.php';
@@ -28,7 +25,7 @@ if ($dayOfWeek == 6) {
 
 if (!$valid) {
     require_once __DIR__ . '/helpers/Logger.php';
-    Logger::log("Skipped processing — current time $currentTime is outside allowed window for $dayName. Expected: 09:30 to 19:30.");
+    Logger::log("Skipped processing — current time $currentTime is outside allowed window for $dayName. Expected: 05:00 to 22:00.");
     exit;
 }
 
