@@ -69,20 +69,28 @@ class BitrixClient
     {
         $badgeNumber = $punch['BadgeNumber'];
 
-        // if (!isset($this->map[$badgeNumber])) {
-        //     Logger::log("BioTime badge number $badgeNumber is invalid — not found in map.");
-        //     return false;
-        // }
+        if (!isset($this->map[$badgeNumber])) {
+            Logger::log("BioTime badge number $badgeNumber is invalid — not found in map.");
+            return false;
+        }
 
-        // if (empty($this->map[$badgeNumber]['bitrix_id'])) {
-        //     Logger::log("BioTime badge number $badgeNumber is valid but not mapped to a Bitrix user.");
-        //     return false;
-        // }
+        if (empty($this->map[(int)$badgeNumber]['bitrix_id'])) {
+            Logger::log("BioTime badge number $badgeNumber is valid but not mapped to a Bitrix user.");
+            return false;
+        }
+
+        $bitrixUserId = (int)$this->map[(int)$badgeNumber]['bitrix_id'];
+
+        if ($bitrixUserId <= 0) {
+            Logger::log("BioTime badge number $badgeNumber is mapped to a non-Bitrix user.");
+            return false;
+        }
 
         $punchDate = date('Y-m-d', strtotime($punch['VerifyTime']));
 
         $filter = [
             'filter' => [
+                'assignedById' => $bitrixUserId,
                 'ufCrm9BadgeNumber' => $badgeNumber,
                 'ufCrm9PunchType' => $type,
                 '>=ufCrm9VerifyTime' => $punchDate . 'T00:00:00',
@@ -108,6 +116,7 @@ class BitrixClient
             'ufCrm9PunchType' => $type,
             'ufCrm9DeviceSerialNumber' => $punch['DeviceSerialNumber'] ?? '',
             'ufCrm9DeviceAliasName' => ucwords(strtolower($punch['DeviceAliasName'])) ?? '',
+            'assignedById' => $bitrixUserId,
         ];
 
         $params = [
