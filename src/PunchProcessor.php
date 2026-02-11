@@ -31,12 +31,6 @@ class PunchProcessor
         file_put_contents($this->processedPunchesFile, json_encode($ids, JSON_PRETTY_PRINT));
     }
 
-    private function determinePunchType($verifyTime)
-    {
-        $hour = (int)date('H', strtotime($verifyTime));
-        return ($hour < 12) ? 'IN' : 'OUT';
-    }
-
     public function process()
     {
         try {
@@ -61,29 +55,26 @@ class PunchProcessor
 
             foreach ($grouped as $badgeNumber => $dates) {
                 foreach ($dates as $date => $entries) {
-                    $firstIn = null;
-                    $lastOut = null;
+
+                    // Sort punches by time ASC
+                    usort($entries, function ($a, $b) {
+                        return strtotime($a['VerifyTime']) <=> strtotime($b['VerifyTime']);
+                    });
+
+                    // Get last state from Bitrix
+                    $lastType = $this->bitrix->getLastTransactionType($badgeNumber);
 
                     foreach ($entries as $entry) {
-                        $type = $this->determinePunchType($entry['VerifyTime']);
-                        $time = strtotime($entry['VerifyTime']);
-
-                        if ($type == 'IN') { // Punch In
-                            if (!$firstIn || $time < strtotime($firstIn['VerifyTime'])) {
-                                $firstIn = $entry;
-                            }
-                        } elseif ($type == 'OUT') { // Punch Out
-                            if (!$lastOut || $time > strtotime($lastOut['VerifyTime'])) {
-                                $lastOut = $entry;
-                            }
+                        if (!$lastType || $lastType === 'OUT') {
+                            $currentType = 'IN';
+                        } else {
+                            $currentType = 'OUT';
                         }
-                    }
 
-                    if ($firstIn) {
-                        $toProcess[] = $firstIn;
-                    }
-                    if ($lastOut) {
-                        $toProcess[] = $lastOut;
+                        $entry['PunchType'] = $currentType;
+                        $toProcess[] = $entry;
+
+                        $lastType = $currentType;
                     }
                 }
             }
@@ -91,7 +82,7 @@ class PunchProcessor
             foreach ($toProcess as $punch) {
                 $id = $punch['Id'];
                 $badgeNumber = $punch['BadgeNumber'];
-                $type = $this->determinePunchType($punch['VerifyTime']);
+                $type = $punch['PunchType'];
                 $time = $punch['VerifyTime'] ?? 'N/A';
 
                 Logger::log("Processing punch ID $id: badge number: $badgeNumber | Type: $type | Time: $time", true);

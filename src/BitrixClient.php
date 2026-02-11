@@ -14,6 +14,38 @@ class BitrixClient
         $this->transactionEntityType = $config['biotime_transactions_entity_type_id'];
     }
 
+    public function getLastTransactionType($badgeNumber)
+    {
+        if (!isset($this->map[$badgeNumber])) {
+            return null;
+        }
+
+        $bitrixUserId = (int)$this->map[(int)$badgeNumber]['bitrix_id'];
+
+        if ($bitrixUserId <= 0) {
+            return null;
+        }
+
+        $params = [
+            'entityTypeId' => $this->transactionEntityType,
+            'filter' => [
+                'assignedById' => $bitrixUserId,
+                'ufCrm9BadgeNumber' => $badgeNumber,
+            ],
+            'select' => ['id', 'ufCrm9PunchType', 'ufCrm9VerifyTime'],
+            'order' => ['ufCrm9VerifyTime' => 'DESC'],
+            'limit' => 1,
+        ];
+
+        $response = CRest::call('crm.item.list', $params);
+
+        if (!empty($response['result']['items'][0]['ufCrm9PunchType'])) {
+            return $response['result']['items'][0]['ufCrm9PunchType'];
+        }
+
+        return null;
+    }
+
     public function clockInOut($badgeNumber, $type)
     {
         if (!isset($this->map[$badgeNumber])) {
@@ -83,27 +115,6 @@ class BitrixClient
 
         if ($bitrixUserId <= 0) {
             Logger::log("BioTime badge number $badgeNumber is mapped to a non-Bitrix user.");
-            return false;
-        }
-
-        $punchDate = date('Y-m-d', strtotime($punch['VerifyTime']));
-
-        $filter = [
-            'filter' => [
-                'assignedById' => $bitrixUserId,
-                'ufCrm9BadgeNumber' => $badgeNumber,
-                'ufCrm9PunchType' => $type,
-                '>=ufCrm9VerifyTime' => $punchDate . 'T00:00:00',
-                '<=ufCrm9VerifyTime' => $punchDate . 'T23:59:59',
-            ],
-            'entityTypeId' => $this->transactionEntityType,
-            'select' => ['id'],
-        ];
-
-        $existing = CRest::call('crm.item.list', $filter);
-
-        if (!empty($existing['result']['items'])) {
-            Logger::log("Skipping duplicate $type transaction for $badgeNumber on $punchDate.");
             return false;
         }
 
