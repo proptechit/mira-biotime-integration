@@ -26,15 +26,20 @@ class BitrixClient
             return null;
         }
 
+        $todayStart = date('Y-m-d\T00:00:00');
+        $todayEnd   = date('Y-m-d\T23:59:59');
+
         $params = [
             'entityTypeId' => $this->transactionEntityType,
             'filter' => [
-                'assignedById' => $bitrixUserId,
-                'ufCrm9BadgeNumber' => $badgeNumber,
+                'assignedById'        => $bitrixUserId,
+                'ufCrm9BadgeNumber'   => $badgeNumber,
+                '>=ufCrm9VerifyTime'  => $todayStart,   // inclusive
+                '<=ufCrm9VerifyTime'  => $todayEnd,     // inclusive
             ],
             'select' => ['id', 'ufCrm9PunchType', 'ufCrm9VerifyTime'],
-            'order' => ['ufCrm9VerifyTime' => 'DESC'],
-            'limit' => 1,
+            'order'  => ['ufCrm9VerifyTime' => 'DESC'],
+            'limit'  => 1,
         ];
 
         $response = CRest::call('crm.item.list', $params);
